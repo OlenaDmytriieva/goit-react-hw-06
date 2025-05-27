@@ -3,6 +3,8 @@ import { nanoid } from "nanoid";
 import { useId } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import { useDispatch } from 'react-redux';
+import { addContact } from '../../redux/contactsSlice';
 
 const ContactSchema = Yup.object().shape({
   name: Yup.string()
@@ -18,16 +20,21 @@ const ContactSchema = Yup.object().shape({
 const initialValues = {
   name: "",
   number: "",
-  id: "",
 };
 
-export default function ContactForm({ onAdd }) {
+const ContactForm = () => {
+  const dispatch = useDispatch();
   const nameId = useId();
   const numberId = useId();
 
   const handleSubmit = (values, actions) => {
-    // console.log({ ...values, id: nanoid() });
-    onAdd({ ...values, id: nanoid() });
+    dispatch(
+      addContact({
+        id: nanoid(),
+        name: values.name,
+        number: values.number,
+      })
+    );
     actions.resetForm();
   };
 
@@ -45,12 +52,7 @@ export default function ContactForm({ onAdd }) {
         </div>
         <div className={style.labelAndField}>
           <label htmlFor={numberId}>Number</label>
-          <Field
-            className={style.field}
-            id={numberId}
-            type="tel"
-            name="number"
-          />
+          <Field className={style.field} id={numberId} type="tel" name="number" />
           <ErrorMessage name="number" component="div" className={style.error} />
         </div>
         <button className={style.addButton} type="submit">
@@ -59,29 +61,6 @@ export default function ContactForm({ onAdd }) {
       </Form>
     </Formik>
   );
-}
+};
 
-// export default function ContactForm({ onAdd }) {
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-//     onAdd({
-//       id: nanoid(),
-//       name: e.target.elements.name.value,
-//       number: e.target.elements.number.value,
-//     });
-//     e.target.reset();
-//   };
-
-//   const nameId = useId();
-//   const numberId = useId();
-
-//   return (
-//     <form className={style.form} onSubmit={handleSubmit}>
-//       <label htmlFor={nameId}>Name</label>
-//       <input className={style.field} id={nameId} type="text" name="name" />
-//       <label htmlFor={numberId}>Number</label>
-//       <input className={style.field} id={numberId} type="tel" name="number" />
-//       <button type="submit">Add contact</button>
-//     </form>
-//   );
-// }
+export default ContactForm;
